@@ -1,0 +1,31 @@
+#Install openssh optional windows feature
+#type this command in command prompt to generate ssh key
+ssh-keygen
+#This will generate two files. A public key and a private key.
+#Go into your github settings, deploy keys, and create an ssh key using the public key file that you generated.
+
+
+Clone repo with
+git@github.com:JonathanTrevatt/METR4202.git
+
+
+
+
+
+#Open terminal to your local working folder
+
+#Initialise and set up repository
+git clone https://github.com/JonathanTrevatt/METR4202.git
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+
+git remote add origin https://github.com/JonathanTrevatt/METR4202.git
+git branch -M main
+
+#add all files in current directory to staging area
+git add .
+
+#Commit files from staging area to the repository
+git commit -m "You commit message here"
+
+
