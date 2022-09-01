@@ -138,7 +138,7 @@ def process_image(image, arucoDict, arucoParams):
         (topLeft, topRight, bottomRight, bottomLeft) = extract_marker_corners(corners[0])
         # Warp perspective to make a tag square
         image = warp_quad_to_square(image, topLeft, topRight, bottomRight, bottomLeft)
-        return image
+    return image
 
 image = process_image(image, arucoDict, arucoParams)
 
