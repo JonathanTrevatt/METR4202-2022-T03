@@ -4,6 +4,7 @@ import imutils
 import cv2
 import matplotlib.pyplot as plt
 import sys
+import numpy as np
 
 # construct the command line argument parser and parse the arguments
 # --image: The path to the input image containing any ArUco tags we want to detect
@@ -60,44 +61,89 @@ if ARUCO_DICT.get(args["type"], None) is None:
 print("[INFO] detecting '{}' tags...".format(args["type"]))
 arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
 arucoParams = cv2.aruco.DetectorParameters_create()
-(corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict, parameters=arucoParams)
-
-# Visualise ArUco markers
-# verify *at least* one ArUco marker was detected
-if len(corners) > 0:
-    # flatten the ArUco IDs list
-    ids = ids.flatten()
-    # loop over the detected ArUCo corners
-    for (markerCorner, markerID) in zip(corners, ids):
-        # extract the marker corners (which are always returned in
-        # top-left, top-right, bottom-right, and bottom-left order)
-        corners = markerCorner.reshape((4, 2))
-        (topLeft, topRight, bottomRight, bottomLeft) = corners
-        # convert each of the NumPy array (x, y)-coordinate pairs to integers
-        topRight = (int(topRight[0]), int(topRight[1]))
-        bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
-        bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
-        topLeft = (int(topLeft[0]), int(topLeft[1]))
-
-        # draw the bounding box of the ArUCo detection on the image
-        cv2.line(image, topLeft, topRight, (0, 255, 0), 2)
-        cv2.line(image, topRight, bottomRight, (0, 255, 0), 2)
-        cv2.line(image, bottomRight, bottomLeft, (0, 255, 0), 2)
-        cv2.line(image, bottomLeft, topLeft, (0, 255, 0), 2)
-
-        # compute and draw the center (x, y)-coordinates of the ArUco marker
-        cX = int((topLeft[0] + bottomRight[0]) / 2.0)
-        cY = int((topLeft[1] + bottomRight[1]) / 2.0)
-        cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
-        # draw the ArUco marker ID on the image
-        cv2.putText(image, str(markerID), (topLeft[0], topLeft[1] - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        print("[INFO] ArUco marker ID: {}".format(markerID))
 
 
-# Name window name and show the image using cv2.imshow() method
-window_name = 'image'
-cv2.imshow("Image", image)
-# wait for user key press (necessary to avoid Python kernel form crashing)
-cv2.waitKey(0)
-# closing all open windows (after key press)
-cv2.destroyAllWindows()
+# Extract marker corners (which are always returned in order top-left, top-right, bottom-right, and bottom-left)
+def extract_marker_corners(markerCorner):
+    corners = markerCorner.reshape((4, 2))
+    (topLeft, topRight, bottomRight, bottomLeft) = corners
+    # convert each of the NumPy array (x, y)-coordinate pairs to integers
+    topRight = (int(topRight[0]), int(topRight[1]))
+    bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+    bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+    topLeft = (int(topLeft[0]), int(topLeft[1]))
+    corners = [topRight, bottomRight, bottomLeft, topLeft]
+    return corners
+
+
+def draw_quad(image, topLeft, topRight, bottomRight, bottomLeft):
+    cv2.line(image, topLeft, topRight, (0, 255, 0), 2)
+    cv2.line(image, topRight, bottomRight, (0, 255, 0), 2)
+    cv2.line(image, bottomRight, bottomLeft, (0, 255, 0), 2)
+    cv2.line(image, bottomLeft, topLeft, (0, 255, 0), 2)
+    return image
+
+def draw_quad_centerpoint(image, topLeft, topRight, bottomRight, bottomLeft):
+    # compute and draw the center (x, y)-coordinates of the ArUco marker
+    (cX, cY) = get_quad_centerpoint(topLeft, topRight, bottomRight, bottomLeft)
+    cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
+    # draw the ArUco marker ID on the image
+    return image
+
+def draw_quad_markerID(image, topLeft, topRight, bottomRight, bottomLeft, markerID):
+    # draw the ArUco marker ID on the image
+    cv2.putText(image, str(markerID), (topLeft[0], topLeft[1] - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    print("[INFO] ArUco marker ID: {}".format(markerID))
+    return image
+
+def get_quad_centerpoint(topLeft, topRight, bottomRight, bottomLeft):
+    cX = int((topLeft[0] + bottomRight[0]) / 2.0)
+    cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+    return cX, cY
+
+def warp_quad_to_square(image, topLeft, topRight, bottomRight, bottomLeft):
+    # Coordinates of quadrangle vertices in the source image.
+    pts1 = np.float32([topLeft, topRight, bottomRight, bottomLeft])
+    # Coordinates of the corresponding quadrangle vertices in the destination image.
+    side_length = topRight[0] - topLeft[0]
+    pts2 = np.float32(
+        [topLeft,
+         [topLeft[0] + side_length, topLeft[1]],  # New top right
+         [topLeft[0] + side_length, topLeft[1] + side_length],  # New bottom right
+         [topLeft[0], topLeft[1] + side_length]  # New bottom left
+         ])
+    # Apply Perspective Transform Algorithm
+    matrix = cv2.getPerspectiveTransform(pts1, pts2)
+    image = cv2.warpPerspective(image, matrix, (image.shape[0], image.shape[1]))
+    return image
+
+def process_image(image, arucoDict, arucoParams):
+    (corners, ids, rejected) = cv2.aruco.detectMarkers(image, arucoDict, parameters=arucoParams)
+    # Visualise ArUco markers
+    # verify *at least* one ArUco marker was detected
+    if len(corners) > 0:
+        # flatten the ArUco IDs list
+        ids = ids.flatten()
+        # loop over the detected ArUCo corners
+        for (markerCorner, markerID) in zip(corners, ids):
+            # Extract marker corners (which are always returned in order top-left, top-right, bottom-right, and bottom-left)
+            (topLeft, topRight, bottomRight, bottomLeft) = extract_marker_corners(markerCorner)
+
+            # draw the bounding box of the ArUCo detection on the image
+            image = draw_quad(image, topLeft, topRight, bottomRight, bottomLeft)
+            image = draw_quad_centerpoint(image, topLeft, topRight, bottomRight, bottomLeft)
+            image = draw_quad_markerID(image, topLeft, topRight, bottomRight, bottomLeft, markerID)
+
+        # Choose the first tag detected for warping function
+        (topLeft, topRight, bottomRight, bottomLeft) = extract_marker_corners(corners[0])
+        # Warp perspective to make a tag square
+        image = warp_quad_to_square(image, topLeft, topRight, bottomRight, bottomLeft)
+        return image
+
+image = process_image(image, arucoDict, arucoParams)
+
+# Show image
+window_name = 'image'       # Name display window for image
+cv2.imshow("Image", image)  # Show the image using cv2.imshow() method
+cv2.waitKey(0)              # wait for user key press (necessary to avoid Python kernel form crashing)
+cv2.destroyAllWindows()     # closing all open windows (after key press)
