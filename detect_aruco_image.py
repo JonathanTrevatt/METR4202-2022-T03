@@ -9,7 +9,7 @@ import numpy as np
 # construct the command line argument parser and parse the arguments
 # --image: The path to the input image containing any ArUco tags we want to detect
 # --type: The type of ArUco tags that we’ll be detecting
-
+# TODO - implement use as both commandline and as package
 """ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to input image containing ArUCo tag")
 ap.add_argument("-t", "--type", type=str, default="DICT_ARUCO_ORIGINAL", help="type of ArUCo tag to detect")
