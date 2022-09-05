@@ -53,7 +53,7 @@ ARUCO_DICT = {
 # load the input image from disk and resize it
 print("[INFO] loading image...")
 image = cv2.imread(args["image"])
-image = imutils.resize(image, width=600)
+#image = imutils.resize(image, width=600)
 # verify that the supplied ArUCo tag exists and is supported by OpenCV
 if ARUCO_DICT.get(args["type"], None) is None:
     print("[INFO] ArUCo tag of '{}' is not supported".format(args["type"]))
@@ -63,18 +63,6 @@ print("[INFO] detecting '{}' tags...".format(args["type"]))
 arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[args["type"]])
 arucoParams = cv2.aruco.DetectorParameters_create()
 
-
-# Extract marker corners (which are always returned in order top-left, top-right, bottom-right, and bottom-left)
-def extract_marker_corners(markerCorner):
-    corners = markerCorner.reshape((4, 2))
-    (topLeft, topRight, bottomRight, bottomLeft) = corners
-    # convert each of the NumPy array (x, y)-coordinate pairs to integers
-    topRight = (int(topRight[0]), int(topRight[1]))
-    bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
-    bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
-    topLeft = (int(topLeft[0]), int(topLeft[1]))
-    corners = [topRight, bottomRight, bottomLeft, topLeft]
-    return corners
 
 def float_lists_to_int_tuples(f_lists):
     for i in range(len(f_lists)):
