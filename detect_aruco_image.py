@@ -184,37 +184,7 @@ def process_image(image, arucoDict, arucoParams):
     return image
 
 
-"""    aruco_len = 1
-    for id in ids:
-        print("ID: ", id)
-        r_vec = np.array([])
-        t_vec = np.array([])
-        cv2.aruco.estimatePoseSingleMarkers(corners[0], aruco_len, camera_matrix, camera_dist)
-        image = cv2.drawFrameAxes(image, camera_matrix, camera_dist, r_vec, t_vec, 0.1)"""
-    
-"""    
-    # Visualise ArUco markers
-    # verify *at least* one ArUco marker was detected
-    if len(corners) > 0:
-        # flatten the ArUco IDs list
-        ids = ids.flatten()
-        # loop over the detected ArUCo corners
-        for (markerCorner, markerID) in zip(corners, ids):
-            # Extract marker corners (which are always returned in order top-left, top-right, bottom-right, and bottom-left)
-            (topLeft, topRight, bottomRight,bottomLeft) = extract_marker_corners(markerCorner)
-
-            # Draw the bounding box around the detected ArUCo tag
-            image = draw_quad(image, topLeft, topRight,bottomRight, bottomLeft)
-            # Draw a point at the center of the detected ArUCo tag
-            image = draw_quad_centerpoint(image, topLeft, topRight, bottomRight, bottomLeft)
-            # Draw the ID of the detected ArUCo tag
-            image = draw_quad_markerID(image, topLeft, topRight, bottomRight, bottomLeft, markerID)
-            # Draw a frame axis for the detected ArUCo tag
-            #image = draw_aruco_frame_axis(image, topLeft, topRight, bottomRight, bottomLeft)
-            image = draw_frame_axis(image, topLeft, topRight, bottomRight, bottomLeft)
-       
-            
-
+"""
         # Choose the first tag detected for warping function
         (topLeft, topRight, bottomRight, bottomLeft) = extract_marker_corners(corners[0])
 
@@ -223,9 +193,6 @@ def process_image(image, arucoDict, arucoParams):
             image = warp_quad_to_square(image, topLeft, topRight, bottomRight, bottomLeft)
     """
     
-
-
-
 
 image = process_image(image, arucoDict, arucoParams)
 
