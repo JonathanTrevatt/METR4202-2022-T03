@@ -1,0 +1,13 @@
+<launch>
+
+<!-- Loading URDF file to the parameters server -->
+<param name="robot_description" command="$(find xacro)/xacro $(find metr4202_w7_prac)/package.xml" />
+
+<!-- Joint State Publisher -->
+<node name="joint_node" pkg="metr4202_w7_prac" type="joint_states_publisher.py" >
+</node>
+
+<!-- Desired Pose Node -->
+<node name="pose_node" pkg="metr4202_w7_prac" type="desired_pose_node.py" />
+
+</launch>
