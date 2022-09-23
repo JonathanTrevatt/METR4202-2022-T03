@@ -27,9 +27,9 @@ def main():
     while not rospy.is_shutdown():
         try:
             Rsb = np.array([[0,-1,0],
-            [0,0,-1],
-            [1,0,0]])
-            psb = np.array([1,2.366,2.366])
+            [1,0,0],
+            [0,0,1]])
+            psb = np.array([0.25,0,0.0])
             T_sb = mr.RpToTrans(Rsb,psb)
             q = tfct.quaternion_from_matrix(T_sb)
             

@@ -1,7 +1,7 @@
 <launch>
 
 <!-- Loading URDF file to the parameters server -->
-<param name="robot_description" command="$(find xacro)/xacro $(find metr4202_w7_prac)/package.xml" />
+<param name="robot_description" command="$(find xacro)/xacro $(find METR4202)/package.xml" />
 
 <!-- Joint State Publisher -->
 <node name="joint_node" pkg="metr4202_w7_prac" type="joint_states_publisher.py" >
