@@ -8,45 +8,54 @@ import rospy
 from geometry_msgs.msg import Pose,TransformStamped,Quaternion,Vector3
 
 import modern_robotics as mr
-import tf2_ros
-from tf_conversions import transformations as tfct
+from fiducial_msgs.msg import FiducialTransform, FiducialTransformArray
 import numpy as np
 from std_msgs.msg import Float32
+from geometry_msgs.msg import Pose, Quaternion,Vector3, Transform
+
+def fid_trans(poses: FiducialTransformArray) -> Pose:
+    global pose_pub
+    fiducial_array = []
+    if (len(poses.transforms) > 0):
+        for i in range(len(poses.transforms)):
+            if (poses.transforms[i].fiducial_id is not None):
+                x = poses.transforms[i].transform.translation.x
+                y = poses.transforms[i].transform.translation.y
+                z = poses.transforms[i].transform.translation.z
+
+                pc = np.array([[x],[y],[z],[1]])
+                Trc = np.array([[0,1,0,0.19],[1,0,0,-0.015],[0,0,-1,0.47],[0,0,0,1]])
+                psb_4 = (Trc @ pc).T
+                psb = psb_4[:,0:3][0]
+                fiducial_array.append(psb)
+                pose_pub.publish(get_pose(fiducial_array[0]))
+
+def get_pose(psb):
+    pose_msg = Pose()
+    pose_msg.position.x = psb[0]
+    pose_msg.position.y = psb[1]
+    pose_msg.position.z = 0.07
+
+    return pose_msg
 
 def main():
-    global pub
+    global pose_pub
     # Initialise node with any node name
     rospy.init_node('pose_node')
+    # Create subscriber
+    sub = rospy.Subscriber(
+        'fiducial_transforms', # Topic name
+        FiducialTransformArray, # Message type
+        fid_trans # Callback function (required)
+    )
     # Create publisher
     pose_pub = rospy.Publisher(
-        'desired_pose', # Topic name
+        'current_pose', # Topic name
         Pose, # Message type
         queue_size=10 # Topic size (optional)
     )
-    rate = rospy.Rate(10)
-    while not rospy.is_shutdown():
-        try:
-            Rsb = np.array([[0,-1,0],
-            [1,0,0],
-            [0,0,1]])
-            psb = np.array([0.25,0,0.0])
-            T_sb = mr.RpToTrans(Rsb,psb)
-            q = tfct.quaternion_from_matrix(T_sb)
-            
-            pose_msg = Pose()
-            pose_msg.position.x = psb[0]
-            pose_msg.position.y = psb[1]
-            pose_msg.position.z = psb[2]
 
-            pose_msg.orientation.x = q[0]
-            pose_msg.orientation.y = q[1]
-            pose_msg.orientation.z = q[2]
-            pose_msg.orientation.w = q[3]
-
-            pose_pub.publish(pose_msg)
-            rospy.sleep(2)
-        except rospy.ROSException:
-            print('Error message not published!')
+    
 
     # You spin me right round baby, right round...
     # Just stops Python from exiting and executes callbacks

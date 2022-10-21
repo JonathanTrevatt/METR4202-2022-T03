@@ -1,7 +1,12 @@
 <launch>
+<!--task parameter selection-->
+<rosparam param="task">1</rosparam>
 
 <!-- Loading URDF file to the parameters server -->
-<param name="robot_description" command="$(find xacro)/xacro $(find METR4202)/package.xml" />
+<param name="robot_description" command="$(find xacro)/xacro $(find metr4202_w7_prac)/package.xml" />
+
+<!--Dynamixel Launch-->
+<include file="$(find dynamixel_interface)/launch/dynamixel_interface_controller.launch" />
 
 <!-- Joint State Publisher -->
 <node name="joint_node" pkg="metr4202_w7_prac" type="joint_states_publisher.py" >
@@ -9,5 +14,19 @@
 
 <!-- Desired Pose Node -->
 <node name="pose_node" pkg="metr4202_w7_prac" type="desired_pose_node.py" />
+
+<!--Gripper Node-->
+<node name="gripper_node" pkg="metr4202_w7_prac" type="gripper_node.py" />
+
+
+<!--Camera-->
+<node name="ximea_ros" pkg="ximea_ros" type="ximea_demo" />
+
+<!--Aruco Detection-->
+<include file="$(find ximea_ros)/launch/ximea_aruco.launch" />
+
+<!--Controller Node-->
+<node name="controller_node" pkg="metr4202_w7_prac" type="controller.py" ></node>
+
 
 </launch>
