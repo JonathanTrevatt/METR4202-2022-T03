@@ -12,7 +12,7 @@ def grip_controller(bool: Bool):
     if bool.data is True:
         rpi.set_servo_pulsewidth(18,2000) 
     else:
-        rpi.set_servo_pulsewidth(18,1400) 
+        rpi.set_servo_pulsewidth(18,1200) 
 
 def main():
     global rpi
@@ -33,7 +33,7 @@ def main():
         grip_controller # Callback function (required)
     )
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(50)
 
     rospy.spin()
 

@@ -51,6 +51,7 @@ def inv_kin(psb):
     L4 = 0.1175
     L5 = 0.095
     L6 = 0.09761
+    L7 = 0.015
 
     # Desired Coordinates
     xd = psb[0]
@@ -58,23 +59,35 @@ def inv_kin(psb):
     zd = psb[2]
 
     test_phi_1 = 0
-    test_phi_2 = -np.pi/20
-    test_phi_3 = -np.pi/2
-    test_phi_4 = -3*np.pi/4
+    test_phi_2 = -np.pi/8
+    test_phi_3 = -np.pi/4
+    test_phi_4 = -3*np.pi/8
+    test_phi_5 = -np.pi/2
 
-    phi = [test_phi_1, test_phi_2, test_phi_3, test_phi_4]
+
+    phi = [test_phi_5, test_phi_4, test_phi_3, test_phi_2, test_phi_1]
     joint_angles_array = []
 
     for i in range(0,len(phi)):
-        #print(phi[i])
-        # Translated coordinates to radius and height
         rad_des = math.sqrt((math.pow(xd,2)+math.pow(yd,2)))
         z_des = zd
+        #print(phi[i])
+        # Translated coordinates to radius and height
+        if (phi[i] == test_phi_5):
+            rad_des += L7
+        if (phi[i] == test_phi_4):
+            rad_des += 0.9*L7
+        if (phi[i] == test_phi_3):
+            rad_des += 0.8*L7
+        if (phi[i] == test_phi_2):
+            rad_des += 0.7*L7
+        if (phi[i] == test_phi_1):
+            z_des += L7
 
         #Make 2R offset changes
         rad = rad_des - L6*math.cos(phi[i])
-        z_offset = 0.15*rad
-        z = z_des - L6*math.sin(phi[i]) - 0.13 + z_offset
+        z_offset = 0.6*rad**2
+        z = z_des - L6*math.sin(phi[i]) - 0.14 + z_offset
         rad_2r = math.sqrt((math.pow(rad,2)+math.pow(z,2)))
 
         if ((L4+L5) >= rad_2r):
@@ -188,7 +201,7 @@ def main():
     # You spin me right round baby, right round...
     # Just stops Python from exiting and executes callbacks
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(50)
     rospy.spin()
 
 
