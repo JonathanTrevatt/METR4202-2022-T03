@@ -29,7 +29,7 @@
 <node name="image_node" pkg="ximea_color" type="example_camera.py" />
 
 <!--Controller Node-->
-<node name="controller_node" pkg="metr4202_w7_prac" type="controller.py" ></node>
+<node name="controller_node_3b" pkg="metr4202_w7_prac" type="controller_3b.py" ></node>
 
 
 </launch>

@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 """
-This script publishes a desired pose to the metr4202 prac wk7 node.
+This script sets the PWM to control the servo on the Raspberry Pi.
 """
 
-import rospy
+# Imports
 
-from std_msgs.msg import Bool, Float32, Int16
+import rospy
+from std_msgs.msg import Bool
 import pigpio
 
+"""
+grip_controller: callback function which toggles gripper 'open' or 'closed' based on boolean flag
+
+Params: bool -> 'True' (open) or 'False' (closed)
+"""
 def grip_controller(bool: Bool):
+    #1200 is the grip box position
+    #2000 is the open position
     if bool.data is True:
         rpi.set_servo_pulsewidth(18,2000) 
     else:
@@ -16,25 +24,23 @@ def grip_controller(bool: Bool):
 
 def main():
     global rpi
-    # Initialise node with any node name
+    # Initialise node
     rospy.init_node('gripper_node') 
 
+    #initialise raspberry pi GPIO
     rpi = pigpio.pi()
     rpi.set_mode(18, pigpio.OUTPUT) 
-    # rpi.set_servo_pulsewidth(18,1000)
-    #1000 is the closed position
-    #1500 is the grip box position
-    #2000 is the open position
 
-    # Create publisher
+    # Create subscriber listening to desired gripper state
     gripperSub = rospy.Subscriber(
         'desired_gripper_state', # Topic name
         Bool, # Message type
         grip_controller # Callback function (required)
     )
-
+    #set rate to 50 Hz, this is common to all nodes
     rate = rospy.Rate(50)
-
+    # You spin me right round baby, right round...
+    # Just stops Python from exiting and executes callbacks
     rospy.spin()
 
 if __name__ == '__main__':

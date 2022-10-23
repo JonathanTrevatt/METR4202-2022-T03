@@ -1,34 +1,26 @@
-# metr4202_w7_prac
+# METR4202 Team 03 README File
 
-In this practical the `dynamixel_interface` ROS package was introduced to allow for control of the joint angles for each Dynamixel motor. The package was originally developed by `csiro-robotics` which has been forked under `UQ-METR4202` to pre-configure the package for the course project. Follow the steps under **Dynamixel Setup** in the course resources repository, `RPi4_Setup.md`, to begin utilising the `dynamixel_interface` package.
+This file explains how to:
 
-Once the packages are cloned, built and sourced, the `dynamixel_interface_controller_node` can be launched alongside a slider GUI for your convenience. The commands to run are the following.
+- Launch the robot
+- The packages used
+- The acknowledgements for third-party code
 
-```SH
-# Only the Dynamixel controller
-roslaunch dynamixel_interface dynamixel_interface_controller.launch
-```
+## Team Members
+1) Jared Tucker
+2) Akash Iyer
+3) Flynn McDermott
+4) Chun Yu Ng
+5) Jonathan Trevatt
 
-```SH
-# Both controller and slider
-roslaunch dynamixel_interface dynamixel_interface_slider.launch
-```
+## Usage
 
-*Be mindful both should not run simultaneously.*
+Run the following commands in order to build and launch the robot correctly.
 
-The preceding commands launches the `dynamixel_interface_controller_node` which subscribes to a `/desired_joint_states` topic. Your team will need to publish to this topic in order to command the Dynamixel motors using the `sensor_msgs/JointState` message type. The controller node also publishes to a `/joint_states` topic which provides feedback of the actual state of each motor.
-
-## joint_states_publisher.py
-
-This repository is a ROS package which you can clone into your workspace under `~/catkin_ws/src`. The following steps are reminders to clone and build packages.
-
+### Building and Sourcing
 ```sh
 # Go to workspace source directory
-cd ~/catkin_ws/src
-# Clone this repository
-git clone https://github.com/UQ-METR4202/metr4202_w7_prac
-# Go back a directory (i.e., ~/catkin_ws)
-cd ..
+cd ~/catkin_ws
 # Build workspace
 catkin build
 # Source workspace
@@ -36,23 +28,81 @@ catkin build
 source devel/setup.bash
 ```
 
-## Usage
-
-Run the following commands in **three separate** terminals. Don't forget to source! Make sure there is plenty of room around your robot **before** running as it'll start **dancing**.
-
+### Enabling/Disabling GPIO daemon
 ```sh
-# Terminal 1
-roslaunch dynamixel_interface dynamixel_interface_controller.launch
-# Terminal 2
-rosrun metr4202_w7_prac joint_states_publisher.py
-# Terminal 3
-rostopic pub /desired_pose geometry_msgs/Pose -r 1 -- '[0, 0, 0]' '[0, 0, 0, 0]'
+#initialise GPIO daemon
+sudo pigpiod
+#optional: if want to kill GPIO daemon
+sudo killall pigpiod
 ```
 
-The script initialises a node that subscribes to the `/desired_pose` topic and publishes to the `/desired_joint_states` topic as a callback to the subscription.
+### Disabling USB Memory Limits
+You need to run the following command after each boot to disable the USB memory limits
+```console
+echo 0 | sudo tee /sys/module/usbcore/parameters/usbfs_memory_mb
+```
 
-## Hints
+### Launching the Robot
+Run the following command in the terminal
+```console
+roslaunch metr4202_w7_prac node_launcher.launch
+```
 
-You may refer to the code under `scripts/` to get an idea of how to begin your inverse kinematics node if that is how you want to structure your ROS stack, but remember, it is entirely up to you and your team to design the ROS architecture.
+### Change Ximea Camera to Run in RGB Mode
+Simply press the space bar to toggle between RGB and Mono.
 
-Try to understand why the following commands are run, especially with terminal 3. Do you really need to run it in order for the `joint_states_publisher.py` to publish joint states?
+## Packages
+### Dynamixel Interface
+- Used to control the robot joints
+- contains 2 launch files
+  - 'dynamixel_interface_controller.launch'
+  - 'dynamixel_interface_slider.launch'
+- Use dynamixel_interface_controller to launch a file which sets the joint torques, effectively setting up the robot for action.
+- Dynamixel slider has been used for testing hard-coded robot positions outside the range of our inverse kinematics function. It consists of a GUI which can vary the joint angles.
+
+### Dynamixel Slider
+Contains config and yaml files that set the GUI variables in dynamixel_interface_slider.launch
+
+### metr4202_w7_prac
+Package from which robot is developed:
+- contains the following items:
+  - launch -- contains launch files in standard package format
+  - scripts -- contains code that controls the robot
+  - CMakeLists.txt -- used for building
+  - package.xml -- contains XML that defines name, version and dependencies and exports to a package.
+  - README.md
+
+### metr4202_ximea_ros
+Package that controls the camera
+
+- Contains the following packages:
+  - ximea_ros: handles viewing the camera image and aruco tag detection
+  - ximea_color: handles color detection
+
+### vision_opencv
+The opencv library that handles computer vision
+
+## Node Information
+### dynamixel_interface_controller_node
+Handles interfacing with dynamixel motors
+### image_node
+Handles interfacing with the ximea camera
+### controller_node
+Handles FSM (Finite State Machine) for robot
+### joint_node
+Handles publishing of joint angles and inverse kinematics to configure robot
+### gripper_node
+Handles Raspberry Pi GPIO interfacing for servo grip and release functions
+### pose_node
+Handles publishing of camera to robot frame transformation
+### aruco_detect
+Handles detection of aruco tags
+### n__ximea_ros
+Master camera node
+### rosout
+Console log reporting mechanism for ROS
+
+## Acknowledgements
+We would like to thank all the wonderful tutors teaching METR4202: Josh, Nilp, Ben, Shanker, Miguel and Kenzo. We would especially like to thank Miguel, who has kindly provided the metr4202_ximea_ros package.
+
+We would also like to acknowledge Kenji Brameld (Github tag @ijnek) for usage of the vision_opencv library.
