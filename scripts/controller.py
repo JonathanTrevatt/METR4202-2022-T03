@@ -243,7 +243,7 @@ def main():
 
             try:
                 # compare old orientation to new orientation
-                if ((list(np.array([-0.0005,-0.0005,-0.0005])) <= list(olderPose - current_rot_array) <= list(np.array([0.0005,0.0005,0.0005])))):
+                if ((list(np.array([-0.0005,-0.0005,-0.0005])) <= list(olderPose - current_rot_array) <= list(np.array([0.0005,0.0005,0.0005]))) and fid_length > 0):
                     final_pose.position.x = int_pose.position.x
                     final_pose.position.y = int_pose.position.y
                     final_pose.position.z = int_pose.position.z
@@ -268,7 +268,7 @@ def main():
 
         final_pose.position.z = 0.07
         
-        time.sleep(3)
+        time.sleep(2)
 
         #final state
         final_joint_states = JointState(
@@ -297,14 +297,14 @@ def main():
         angle_2[1] += np.pi/4
         final_joint_states.position = [angle_2[0], angle_2[1], angle_2[2], angle_2[3]]
 
-        time.sleep(4)
+        time.sleep(2)
 
         #state 2    
         while True:
             GripState(False).execute()
             break
 
-        time.sleep(2)
+        time.sleep(1)
 
         #post pickup state
         final_pose.position.z = 0.12
@@ -335,7 +335,7 @@ def main():
 
         rospy.loginfo("Checking colour")
 
-        time.sleep(3)
+        time.sleep(2)
 
         # check colour
         bin_int = JointState(
