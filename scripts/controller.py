@@ -352,12 +352,35 @@ def main():
             name=['joint_1', 'joint_2', 'joint_3', 'joint_4']
         )
 
+        #yellow rgbs
+        r_y = [255, 219, 185, 243, 118]
+        g_y = [255, 188, 154, 235, 91]
+        b_y = [39,38,48,66,36]
+
+        #red rgbs
+        r_r = [255, 241, 231, 186, 111]
+        g_r = [97, 74, 57, 137, 24]
+        b_r = [110,94,54,155,31]
+
+        #green rgbs
+        r_g = [129, 87, 78, 43, 115]
+        g_g = [255, 185, 149, 191, 41]
+        b_g = [65,73,66,68,41]
+
+        #blue rgbs
+        r_b = [60, 59, 20, 85, 12]
+        g_b = [166, 158, 105, 194, 52]
+        b_b = [255,222,216,156,83]
+
         while True:
             #all dark
             if (color_array[0] < 100 and color_array[1] < 100 and color_array[2] < 100):
                 break
             rospy.loginfo("Validating next state")
-            if (np.argmax(color_array) == 0):
+
+            if (np.min(r_r) <= color_array[0] <= np.max(r_r) and 
+            np.min(g_r) <= color_array[1] <= np.max(g_r) and 
+            np.min(b_r) <= color_array[2] <= np.max(b_r)):
                 #execute red state
                 rospy.loginfo("Red state executing")
                 for i in range(100):
@@ -374,13 +397,15 @@ def main():
                 GripState(True).execute()
                 break
             
-            if (np.argmax(color_array) == 1):
+            if (np.min(r_g) <= color_array[0] <= np.max(r_g) and 
+            np.min(g_g) <= color_array[1] <= np.max(g_g) and 
+            np.min(b_g) <= color_array[2] <= np.max(b_g)):
                 #execute green state
                 rospy.loginfo("Green state executing")
                 for i in range(100):
                     HomeState().execute()
-                bin_int.position = [2.6,-0.66,0,1.46]
-                bin_fin.position = [2.6,-1.1,-0.59,1.46]
+                bin_int.position = [-0.44, 0, 1.03, -0.8]
+                bin_fin.position = [-0.44, 0.59, 1.68, -0.8]
                 #Intermediate position
                 for i in range(100):
                     joint_pub.publish(bin_int)
@@ -391,13 +416,15 @@ def main():
                 GripState(True).execute()
                 break
 
-            if (np.argmax(color_array) == 2):
+            if (np.min(r_b) <= color_array[0] <= np.max(r_b) and 
+            np.min(g_b) <= color_array[1] <= np.max(g_b) and 
+            np.min(b_b) <= color_array[2] <= np.max(b_b)):
                 #execute blue state
                 rospy.loginfo("Blue state executing")
                 for i in range(100):
                     HomeState().execute()
-                bin_int.position = [-2.6,-0.84,0,1.43]
-                bin_fin.position = [-2.6,-1.03,-0.59,1.43]
+                bin_int.position = [0.18, 0, 1.03, -0.8]
+                bin_fin.position = [0.18, -0.59, 1.68, -0.8]
                 #Intermediate position
                 for i in range(100):
                     joint_pub.publish(bin_int)
@@ -408,7 +435,9 @@ def main():
                 GripState(True).execute()
                 break
             
-            if (np.argmin(color_array) == 2 and (0.95 <= color_array[0]/color_array[1] <= 1.05)):
+            if (np.min(r_y) <= color_array[0] <= np.max(r_y) and 
+            np.min(g_y) <= color_array[1] <= np.max(g_y) and 
+            np.min(b_y) <= color_array[2] <= np.max(b_y)):
                 #execute yellow state
                 rospy.loginfo("Yellow state executing")
                 for i in range(100):
